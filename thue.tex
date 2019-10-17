@@ -1,0 +1,200 @@
+\documentclass{patmorin}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,wrapfig}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{amsfonts}
+\usepackage{amsthm,mathtools}
+\usepackage{pat}
+\usepackage{paralist}
+\usepackage{stmaryrd}
+\usepackage[noend,]{algorithmic}
+% \usepackage{thm-restate}
+
+% \usepackage[longnamesfirst,numbers,sort&compress]{natbib}
+% \usepackage[noabbrev,capitalise]{cleveref}
+
+\usepackage{doi} % To make plainnat handle doi's properly 
+
+\newcommand{\ceil}[1]{\lceil #1\rceil}
+% \newcommand{\floor}[1]{\lfloor #1\rfloor}
+
+\usepackage[mathlines]{lineno}
+% \setlength{\linenumbersep}{2em}
+% \linenumbers
+% \rightlinenumbers
+% \linenumbers
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+ \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+ \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+ \renewenvironment{#1}%
+    {\linenomath\csname old#1\endcsname}%
+    {\csname oldend#1\endcsname\endlinenomath}}% 
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+ \patchAmsMathEnvironmentForLineno{#1}%
+ \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+\setlength{\parskip}{1ex}
+
+\newcommand{\floor}[1]{\lfloor #1\rfloor}
+
+\title{\MakeUppercase{A New Approach to Nonrepetitive Sequences, Revisited}}
+\author{TBD}
+
+
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  We revisit a randomized algorithm for generating nonrepetitive sequences proposed by Grytczuk \etal\ (arXiv:1103.3809) and prove that, when applied to alphabets of size 4, their algorithm generates nonrepetitive sequences whose expected length is linear in the number of iterations. Previous analysis showed that the lengths of the generated strings were at least logarithmic in the number of iterations.
+\end{abstract}
+
+\section{Introduction}
+
+A string $s_1,\ldots,s_{2k}$ is a \emph{repetition} if $s_i=s_{i+k}$ for each $i\in\{1,\ldots,k\}$.  For convenience, we treat the empty string as a repetition.  A string $s_1,\ldots,s_n$ is \emph{nonrepetitive} if it contains no non-empty substring that is a repetition.  Consider the following algorithm for generating a nonrepetitive string $s_1,\ldots,s_n$ over a $c$-letter alphabet $\Sigma=\{1,\ldots,c\}$:
+
+\noindent$\textsc{Nonrepetitive}(m,\Sigma)$:
+\begin{algorithmic}[1]
+  \STATE{$n\gets 0$}
+  \FOR{$i\gets 1,\ldots,m$}
+    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma$}$}
+    \STATE{$s_{n+1}\gets x_i$}
+    \STATE{$n\gets n+1$}
+    \STATE{Let $t_i$ be the largest integer such that $s_{n-2t_i+1},\ldots,s_n$ is a repetition (possibly $t_i=0$)}
+    \STATE{$n\gets n-t_i$}
+  \ENDFOR
+  \RETURN{$s_1,\ldots,s_n$}
+\end{algorithmic}
+
+The preceding algorithm clearly returns a nonrepetitive string.  We wish to show that, for sufficiently large alphabets $\Sigma$, $\textsc{Nonrepetitive}(m,\Sigma)$ (typically) returns a string whose length, $n$, is linear in the number, $m$, of iterations.  In particular, we will show that this is true for when $c=|\Sigma|=4$.
+
+Grytczuk \etal\ showed that $\textsc{Nonrepetitive}(m,\Sigma)$, when applied to an alphabet of size $c=4$ produces arbitrarily long strings using the following encoding argument:  Given only the final string $S=s_1,\ldots,s_n$ and the sequence $T=t_1,\ldots,t_m$ of \emph{deletion lengths}, it is possible to recover the sequence $x_1,\ldots,x_m$ of random choices made by the algorithm.  Thus, the pair $(S,T)$ is an \emph{encoding} of $x_1,\ldots,x_m$. Therefore, the number of pairs $(S,T)$ must be no less than the number, $4^m$, of possible sequences $x_1,\ldots,x_m$.  
+
+For a fixed $n$, there are only $4^n$ possible strings $s_1,\ldots,s_n$.  Furthermore, for a fixed $n$, every execution of the algorithm that produces an output of size $n$ produces a deletion-length sequence $t_1,\ldots,t_m$ whose sum is $m-n$.  These deletion-length sequences have a special form. In particular $t_i\ge 0$ and $\sum_{j=1}^i t_j\le i$ for all $i\in\{1,\ldots,m\}$. The number of such sequences is at most $C_{m}$, the $(m+1)$-th Catalan number \cite{X}.  Catalan numbers are well-studied and, in particular,
+\[
+     C_m \sim \frac{4^{m+1}}{\pi(m+1)^{3/2}} \enspace .
+\]
+For a fixed $n$, the number of encodings $(S,T)$ that produce a string of length at most $n$ is therefore at most
+\begin{equation}
+     \sum_{k=0}^n 4^k C_m < 4^{n+1} C_m \sim \frac{4^{n+m+2}}{\pi(m+1)^{3/2}} \enspace . \eqlabel{bad-analysis}
+\end{equation}
+
+In order to avoid a contradiction, it must be the case that the algorithm sometimes outputs strings of length $n$ such that $\eqref{bad-analysis} \ge 4^m$.  Rewriting the resulting inequality shows that this inequality can only be satisfied when $n > \tfrac{3}{2}\log m \pm O(1)$.  In particular, it implies that the algorithm must sometimes output strings of length logarithmic in $m$.
+
+The leading constant of $3/2$ in the preceding analysis can be improved by using better upper bounds on the number of possible strings $s_1,\ldots,s_n$. In particular, it is immediate that the number of such strings is at most $3^{n}$ since these strings do not contain repetition of length 2.  However, these kinds of refinements will only improve the leading constant.
+
+In the remainder of the paper we give an improved analysis that shows the algorithm typically outputs strings of length $n=\Omega(m)$.  Our analysis is a combination of an encoding argument and some basic probability.
+
+\section{On Suffixes}
+
+In this section we study some properties of the short suffixes of the intermediate strings produced by the algorithm.  
+
+For each $t\in\N$, let $n_t=|\{i\in\{1,\ldots,m\}: t_i=t\}|$ be the random variable that counts the number of $t$-deletions.
+
+We can easily verify that $n_1$, the number of $1$-deletions is a binomial random variable with expected value $m/4$.  The following lemma then follows immediately from Chernoff's Bound on the head of a binomial random variable.
+
+\begin{lem}\lemlabel{n1}
+  For any $0\le\delta\le 1$, $\Pr\{n_1 < (1-\delta)m/4\} \le \exp(-\delta^2 m/8)$.
+\end{lem}
+
+We also have a special interest in the random variable $n_2$ and would like to prove a concentration result similar to \lemref{n1}.  However, before we can do this, we must look a little more closely at properties of the 3-suffixes of the string $s_1,\ldots,s_n$ as the algorithm runs.  For simplicity, we will assume that, from the outset $n\ge 3$ and that $s_1s_2s_3=abc$ for distinct $a,b,c\in\Sigma$.  (For simplicity, assume that $x_1,x_2,x_3=a,b,c$.)  For each $i\in\{3,\ldots,m\}$ let $\mathcal{E}_i$ denote the event ``$s_{n-2},s_{n-1},s_n$ are distinct''.
+
+\begin{lem}\lemlabel{ei}
+  The events $\mathcal{E}_4,\ldots,\mathcal{E}_m$ are independent and, for each $i\in\{4,\ldots,m\}$, $\Pr(\mathcal{E}_i)=3/4$.
+\end{lem} 
+
+\begin{proof}
+  We will show that, for any $i\in\{3,\ldots,m-1\}$,
+  \[
+    \Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_{i})
+    = \Pr(\mathcal{E}_{i+1}\mid \overline{\mathcal{E}}_{i})
+    = 3/4   \enspace .
+  \]
+  This is sufficient to establish the independence of $\mathcal{E}_1, \ldots, \mathcal{E}_m$
+  for any $i\subseteq\{4,\ldots,m\}$ by a standard inductive argument.
+  
+  First we show that $\Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_{i})=3/4$ for any $i\in\{3,\ldots,m-1\}$.  The event $\mathcal{E}_i$ implies that, at end of iteration $i$, $s_1,\ldots,s_n$ ends with $abc$ for distinct symbols $a$, $b$, and $c$.  There are four cases to consider, each of which occurs with probability $1/4$:
+  \begin{compactenum}
+    \item $x_{i+1}=c$.  In this case $t_{i+1}=1$, the second occurrence of $c$ in $abcc$ is immediately deleted and the string $s_1,\ldots,s_n$ at the end of iteration $i+1$ is unchanged, so $\mathcal{E}_{i+1}$ occurs.
+    
+    \item $x_{i+1}=a$.  This is broken up into two subcases:
+    \begin{compactenum}
+      \item $t_{i+1}=0$.  In this case, the string $s_1,\ldots,s_n$ at end of iteration $i+1$ ends with $abca$.
+      \item $t_{i+1}>0$.  Since $x_{i+1}=a\neq c$, $t_{i+1}\neq 1$.  Since $ab\neq ca$, $t_{i+1}\neq 2$.  Therefore $t_{i+1}>2$.  Thus, during iteration $i+1$, the $t_{i}$ leaving a string $s_1,\ldots,s_n$ that ends with $bca$.
+    \end{compactenum}
+    Thus, in either subcase $\mathcal{E}_{i+1}$ occurs.
+    
+    \item $x_{i+1}=d$ for $d\not\in\{a,b,c\}$.  The analysis of this case is identical to that of Case~2 and, in either subcase, the string $s_1,\ldots,s_n$ at the end of iteration $i+1$ ends with $bcd$ so $\mathcal{E}_{i+1}$ occurs.
+    
+    \item $x_{i+1}=b$.  Again, there are two subcases depending on value of $t_{i+1}$, but in either case the string $s_1,\ldots,s_n$ at the end of iteration $i+1$ ends with $bcb$ so $\mathcal{E}_i$ does not occur.
+  \end{compactenum}
+  Thus $\mathcal{E}_i$ occurs in 3 of the four cases, so $\Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_{i})=3/4$.
+  
+  Next we show that $\Pr(\mathcal{E}_{i+1}\mid \overline{\mathcal{E}}_{i})=3/4$.
+  The event $\overline{\mathcal{E}_i}$ implies that, at end of iteration $i$, $s_1,\ldots,s_n$ ends with $caba$ for distinct symbols $a$, $b$, and $c$.  (Note that we use the fact that $c\not\in\{a,b\}$ since the string $s_1,\ldots,s_n$ at the end of iteration $i$ is nonrepetitive and its first three symbols are distinct.)  Again, there are three cases to consider $1/4$:
+  \begin{compactenum}
+    \item $x_{i+1}=a$.  In this case $t_{i+1}=1$, the second occurrence of $a$ in $abaa$ is immediately deleted and the string $s_1,\ldots,s_n$ is unchanged during iteration $i+1$, so $\mathcal{E}_{i+1}$ does not occurs.
+    
+    \item $x_{i+1}=d$, for some $d\not\in\{a,b\}$.  This case occurs with probability $1/2$.  This is broken up into two subcases:
+    \begin{compactenum}
+      \item $t_{i+1}=0$.  In this case, the string $s_1,\ldots,s_n$ at end of iteration $i+1$ ends with $abad$.
+      \item $t_{i+1}>0$.  Since $x_{i+1}=a\neq d$, $t_{i+1}\neq 1$.  Since $ab\neq ad$, $t_{i+1}\neq 2$.  Therefore $t_{i+1}>2$.  Thus, during iteration $i+1$, the $t_{i}$ leaving a string $s_1,\ldots,s_n$ whose last three characters are $bad$.
+    \end{compactenum}
+    Thus, in either subcase $\mathcal{E}_{i+1}$ occurs.
+    
+    \item $x_{i+1}=b$.  In this case $t_{i+1}=2$ and the second occurrence of $ab$ in $cabab$ is deleted. Thus, the string $s_1,\ldots,s_n$ at the end of iteration $i+1$ ends with $cab$, so $\overline{\mathcal{E}_{i+1}}$ occurs.
+  \end{compactenum}
+  Cases 2 and 3 occur with total probablity $3/4$, so $\Pr(\mathcal{E}_{i+1}\mid \overline{\mathcal{E}}_{i})=3/4$.
+\end{proof}
+
+We can now establish a concentration result for $n_2$.
+
+\begin{lem}\lemlabel{n2}
+  For any $0\le\delta\le 1$, $\Pr\{n_2 > (1+\delta)m/16\} \le 2\exp(-\delta^2 m/96)$.
+\end{lem}
+
+\begin{proof}
+  For each $i\in\{1,\ldots,m\}$, let $\mathcal{A}_i$ denote the event $t_{i}=2$.  Let $B_i$ denote the event that $x_i$ is equal to the second last character in the string $s_1,\ldots,s_n$ after iteration $i-1$ of the algorithm has completed.
+  
+  Observe that, for each $i\in\{4,\ldots,m\}$, $\mathcal{A}_i=\overline{\mathcal{E}}_i\cap B_i$ (so that the algorithm tries to append $x_i=b$ to a string that ends in $aba$.) The choice of $x_{i+1}$ is independent of $x_1,\ldots,x_{i}$ and is therefore independent of $\overline{\mathcal{E}}_i$.  Therefore,
+  \[  \Pr(A_i) = \Pr(\overline{\mathcal{E}}_i)\cdot\Pr\{x_{i+1}=s_{n-2}\} = 1/16 \enspace .
+  \]
+  
+  Unfortunately, the events $\mathcal{A}_4,\ldots,A_m$ are not, in general, independent.  For instance, under our assumptions, $t_5=2$ implies that, after iteration 5, $n=3$ and $s_1,s_2,s_3=abc$, so $t_6\neq 2$.
+  
+  However, the proof of \lemref{ei} shows that, for any fixed $x_1',\ldots,x_i'$,
+  \[
+     \Pr(\mathcal{E}_{i+1}\mid x_1,\ldots,x_i=x_1',\ldots,x_i') = \frac{3}{4} \enspace .
+  \]
+  It is also obvious that $\Pr(B_{i+1})=1/4$, indepedent of $x_1,\ldots,x_i$.  From this we see that
+  \begin{align*}
+     \Pr(A_{i+2}\mid A_i) 
+     & = \Pr(\mathcal{E}_{i+1}\cap B_{i+2}\mid A_i) \\
+     & = \Pr(\mathcal{E}_{i+1}\mid A_i)\cdot \Pr(B_{i+2}\mid A_i\cap\mathcal{E}_{i+1}) \\
+     & = \Pr(\mathcal{E}_{i+1})\cdot \Pr(B_{i+2}) \\
+     & = 1/16 \enspace ,
+  \end{align*}
+  since $A_i$ depends only on $x_1,\ldots,x_i$ and $\mathcal{E}_{i+1}$ depends only on $x_{1},\ldots,x_{i+1}$.
+  
+  Again, using a standard inductive argument, this is enough to establish that $\mathcal{A}_{2i},\ldots,\mathcal{A}_{2\floor{m/2}}$ are independent.
+  $\mathcal{A}_{2i+1},\ldots,\mathcal{A}_{2\floor{(m-1)/2}}$ are independent.  Thus, $n_2$ is the sum of two binomial random variables each having mean at most $m/2$.  Applying Chernoff's Bound on the tails of these two variables and using the union bound then establishes the lemma.
+\end{proof}
+
+
+
+
+
+\end{document}
