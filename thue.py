@@ -1,5 +1,6 @@
 import sys
 import random
+from collections import defaultdict
 
 def repetitive_suffix(s):
     """Return (half) the length of the shortest repetitive suffix in s"""
@@ -33,9 +34,15 @@ def blocked_repetitive_suffix(s, r):
     return (0, len(s))
 
 if __name__ == "__main__":
-    r = int(sys.argv[1])
-    blocks = list(gen_nonrep("abcd", r))
-    #print("r = {}, len(blocks) = {}".format(r, len(blocks)))
+    try:
+        c = int(sys.argv[1])
+        r = int(sys.argv[2])
+    except:
+        sys.stderr.write("Usage: {} <|sigma|> <r>\n".format(sys.argv[0]))
+        sys.exit(-1)
+
+    sigma = "abcdefghijklmnopqrstuvwxyz"[:c]
+    blocks = list(gen_nonrep(sigma, r))
 
     digraph = [list() for x in blocks]
     dograph = [list() for x in blocks]
@@ -47,6 +54,15 @@ if __name__ == "__main__":
             else:
                 digraph[i].append(j)
 
+    # Some blocks can never be extended, make sure they are not included
+    empty = [i for i in range(len(blocks)) if len(dograph[i]) == 0]
+    while empty:
+        for el in dograph:
+            for i in empty:
+                if i in el:
+                    el.remove(i)
+        empty = [i for i in range(len(blocks)) if len(dograph[i]) == 0]
+
     #print(digraph)
     for i in range(len(blocks)):
         pass # print(i, "".join(blocks[i]), len(digraph[i]))
@@ -56,6 +72,9 @@ if __name__ == "__main__":
     lb = 0
     s = []
     it = 0
+
+    hist = defaultdict(int)
+
     while 1 < 2:
         nb = random.choice(dograph[lb])
         sp = s + blocks[nb]
