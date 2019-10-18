@@ -64,7 +64,7 @@
 
 \section{Introduction}
 
-A string $s_1,\ldots,s_{2k}$ is a \emph{repetition} if $s_i=s_{i+k}$ for each $i\in\{1,\ldots,k\}$.  For convenience, we treat the empty string as a repetition.  A string $s_1,\ldots,s_n$ is \emph{nonrepetitive} if it contains no non-empty substring that is a repetition.  Consider the following algorithm for generating a nonrepetitive string $s_1,\ldots,s_n$ over a $c$-letter alphabet $\Sigma=\{1,\ldots,c\}$:
+A string $s_1,\ldots,s_{2k}$ is a \emph{repetition} if $s_i=s_{i+k}$ for each $i\in\{1,\ldots,k\}$.  For convenience, we treat the empty string as a repetition.  A string $s_1,\ldots,s_n$ is \emph{nonrepetitive} if it contains no non-empty substring that is a repetition.  Consider the following algorithm, proposed by Grytczuk \etal\ \cite{grytczuk.xxx.ea:new} for generating a nonrepetitive string $s_1,\ldots,s_n$ over a $c$-letter alphabet $\Sigma=\{1,\ldots,c\}$:
 
 \noindent$\textsc{Nonrepetitive}(m,\Sigma)$:
 \begin{algorithmic}[1]
@@ -79,28 +79,43 @@ A string $s_1,\ldots,s_{2k}$ is a \emph{repetition} if $s_i=s_{i+k}$ for each $i
   \RETURN{$s_1,\ldots,s_n$}
 \end{algorithmic}
 
-The preceding algorithm clearly returns a nonrepetitive string.  We wish to show that, for sufficiently large alphabets $\Sigma$, $\textsc{Nonrepetitive}(m,\Sigma)$ (typically) returns a string whose length, $n$, is linear in the number, $m$, of iterations.  In particular, we will show that this is true for when $c=|\Sigma|=4$.
+The preceding algorithm clearly returns a nonrepetitive string.  We wish to show that, for sufficiently large alphabets $\Sigma$, $\textsc{Nonrepetitive}(m,\Sigma)$ (typically) returns a string whose length, $n$, is linear in the number, $m$, of iterations.  In particular, we will show that this is true for $c=|\Sigma|=4$.
 
 Grytczuk \etal\ showed that $\textsc{Nonrepetitive}(m,\Sigma)$, when applied to an alphabet of size $c=4$ produces arbitrarily long strings using the following encoding argument:  Given only the final string $S=s_1,\ldots,s_n$ and the sequence $T=t_1,\ldots,t_m$ of \emph{deletion lengths}, it is possible to recover the sequence $x_1,\ldots,x_m$ of random choices made by the algorithm.  Thus, the pair $(S,T)$ is an \emph{encoding} of $x_1,\ldots,x_m$. Therefore, the number of pairs $(S,T)$ must be no less than the number, $4^m$, of possible sequences $x_1,\ldots,x_m$.  
 
-For a fixed $n$, there are only $4^n$ possible strings $s_1,\ldots,s_n$.  Furthermore, for a fixed $n$, every execution of the algorithm that produces an output of size $n$ produces a deletion-length sequence $t_1,\ldots,t_m$ whose sum is $m-n$.  These deletion-length sequences have a special form. In particular $t_i\ge 0$ and $\sum_{j=1}^i t_j\le i$ for all $i\in\{1,\ldots,m\}$. The number of such sequences is at most $C_{m}$, the $(m+1)$-th Catalan number \cite{X}.  Catalan numbers are well-studied and, in particular,
+For a fixed $n$, there are only $4^n$ possible strings $s_1,\ldots,s_n$.  Furthermore, for a fixed $n$, every execution of the algorithm that produces an output of size $n$ produces a deletion-length sequence $t_1,\ldots,t_m$ whose sum is $m-n$.  These integer deletion-length sequences have a special form: $t_i\ge 0$ and $\sum_{j=1}^i t_j\le i$ for all $i\in\{1,\ldots,m\}$. The number of such sequences is at most $C_{m}$, the $(m+1)$-th Catalan number \cite{X}.  Catalan numbers are well-studied and, in particular,
 \[
      C_m \sim \frac{4^{m+1}}{\pi(m+1)^{3/2}} \enspace .
 \]
 For a fixed $n$, the number of encodings $(S,T)$ that produce a string of length at most $n$ is therefore at most
 \begin{equation}
-     \sum_{k=0}^n 4^k C_m < 4^{n+1} C_m \sim \frac{4^{n+m+2}}{\pi(m+1)^{3/2}} \enspace . \eqlabel{bad-analysis}
+     \sum_{k=0}^n 4^{k} C_m < \tfrac{1}{3}(4^{n+1}-1) C_m \sim \frac{4^{n+m+2}}{3\pi(m+1)^{3/2}} \enspace . \eqlabel{bad-analysis}
 \end{equation}
 
-In order to avoid a contradiction, it must be the case that the algorithm sometimes outputs strings of length $n$ such that $\eqref{bad-analysis} \ge 4^m$.  Rewriting the resulting inequality shows that this inequality can only be satisfied when $n > \tfrac{3}{2}\log m \pm O(1)$.  In particular, it implies that the algorithm must sometimes output strings of length logarithmic in $m$.
+In order to avoid a contradiction, it must be the case that the algorithm sometimes outputs strings of length $n$ such that $\eqref{bad-analysis} \ge 4^m$.  Rewriting the resulting inequality shows that this inequality can only be satisfied when $n > \tfrac{3}{2}\log m \pm O(1)$.  In particular, it implies that the algorithm must sometimes output strings of length at least logarithmic in $m$.
 
-The leading constant of $3/2$ in the preceding analysis can be improved by using better upper bounds on the number of possible strings $s_1,\ldots,s_n$. In particular, it is immediate that the number of such strings is at most $3^{n}$ since these strings do not contain repetition of length 2.  However, these kinds of refinements will only improve the leading constant.
+The leading constant of $3/2$ in the preceding analysis can be improved by using better upper bounds on the number of possible strings $s_1,\ldots,s_n$. In particular, it is immediate that the number of such strings is at most $3^{n}$ since these strings do not contain repetition of length 2.  However, these kinds of refinements will only improve the leading constant and will only produce bounds of the form $n\ge\Omega(\log m)$.  
 
-In the remainder of the paper we give an improved analysis that shows the algorithm typically outputs strings of length $n=\Omega(m)$.  Our analysis is a combination of an encoding argument and some basic probability.
+To make real improvements, it is necessary to give a stronger upper bound than $C_m$ on the number of deletion sequences $T$ that produce an output of length $n$.  In particular, a bound of $O(c^m)$ for some constant $c<4$ would work.  Unfortunately, such a bound seems difficult to obtain in the worst case and, indeed, it is plausible that there are $4^n / O(m^c)$ deletion sequences each of which can be obtained by some sequence $x_1,\ldots,x_m\in \Sigma^m$.
+
+We circumvent this difficulty by using a combination of an encoding argument and some basic probability.  In combinatorial terminology, we show that there is a set $\mathcal{T}\subseteq \N^m$ of deletion sequences of size $|\mathcal{T}|\le c^m$, for some constant $c<4$, and a set $\mathcal{X}\subseteq \Sigma^m$ of size $|\mathcal{X}|=\alpha 4^m$ for some constant $\alpha >0$.  These sets have the property that, when $\textsc{Nonrepetitive}(m,\Sigma)$ makes a sequence of random choices $x_1,\ldots,x_m\in \mathcal{X}$ it produces a deletion sequence $t_1,\ldots,t_m\in \mathcal{T}$. This implies that the algorithm must sometimes produce a sequence $s_1,\ldots,s_n$ where $n$ satisfies
+\[
+   \sum_{k=0}^n \tfrac{1}{3}\cdot(4^{n+1}-1) |T| \ge |\mathcal{X}|
+\]
+which implies
+\[
+  4^n \ge (4/c)^m \cdot \Theta(1) \enspace ,
+\]
+so $n \ge m\log_4(4/c) + \log_4\Theta(1)$.
+
+We begin, in \secref{suffixes}, by proving some probabilistic results showing that, with high probability, the deletion sequence $t_1,\ldots,t_m$ produced by a random $x_1,\ldots,x_m$ has some additional structure that places it in the set $\mathcal{T}\subset\N^m$ discussed above.  The ``high probability'' qualifier establishes the existence of the large set $\mathcal{X}\subseteq \Sigma^m$ described above.  
+
+The special property of deletion-length sequences in $\mathcal{T}$ is, that the number of occurences of $1$ and $2$ in the sequence are highly concentrated around $m/4$ and $m/16$, respectively. In \secref{encoding} we then use some information-theoretic machinery developed specifically for these types of encoding arguments in order to complete the proof.  
 
 \section{On Suffixes}
+\seclabel{suffixes}
 
-In this section we study some properties of the short suffixes of the intermediate strings produced by the algorithm.  
+In this section we study some probabilistic properties of the deletion-sequence $t_1,\ldots,t_m$ produced by the algorithm.  In establishing these properties we will make need to study short suffixes of the intermediate strings produced by the algorithm.  
 
 For each $t\in\N$, let $n_t=|\{i\in\{1,\ldots,m\}: t_i=t\}|$ be the random variable that counts the number of $t$-deletions.
 
@@ -110,21 +125,20 @@ We can easily verify that $n_1$, the number of $1$-deletions is a binomial rando
   For any $0\le\delta\le 1$, $\Pr\{n_1 < (1-\delta)m/4\} \le \exp(-\delta^2 m/8)$.
 \end{lem}
 
-We also have a special interest in the random variable $n_2$ and would like to prove a concentration result similar to \lemref{n1}.  However, before we can do this, we must look a little more closely at properties of the 3-suffixes of the string $s_1,\ldots,s_n$ as the algorithm runs.  For simplicity, we will assume that, from the outset $n\ge 3$ and that $s_1s_2s_3=abc$ for distinct $a,b,c\in\Sigma$.  (For simplicity, assume that $x_1,x_2,x_3=a,b,c$.)  For each $i\in\{3,\ldots,m\}$ let $\mathcal{E}_i$ denote the event ``$s_{n-2},s_{n-1},s_n$ are distinct''.
+We also have a special interest in the random variable $n_2$ and would like to prove a concentration result similar to \lemref{n1}.  However, before we can do this, we must look a little more closely at properties of the 3-suffixes of the string $s_1,\ldots,s_n$ as the algorithm runs.  Though it is not crucial, it simplifies the exposition to assume that the algorithm operates on a string $s_{-2},s_{-1},s_{0},s_1,\ldots,s_n$ whose first three symbols are $s_{-2}=a$, $s_{-1}=b$ and $s_{0}=c$ for distinct $a,b,c\in\Sigma$.  
+
+For each $i\in\{0,1,\ldots,m\}$ let $\mathcal{E}_i$ denote the event ``$s_{n-2},s_{n-1},s_n$ are distinct after the completion of iteration $i$''. 
+If we adopt the convention that iteration 0 is complete before the first iteration of the algorithm, then $\Pr(\mathcal{E}_0)=1$ since, at this point $n=0$ and $s_{-2}s_{-1}s_{0}=abc$. The following lemma establishes that the events $\mathcal{E}_1,\ldots,\mathcal{E}_m$ are mutually independent.
 
 \begin{lem}\lemlabel{ei}
-  The events $\mathcal{E}_4,\ldots,\mathcal{E}_m$ are independent and, for each $i\in\{4,\ldots,m\}$, $\Pr(\mathcal{E}_i)=3/4$.
+  For any $i\in\{0,\ldots,m-1\}$ and any $x_1',\ldots,x_{i}'$,
+  $\Pr(\mathcal{E}_{i+1}\mid x_1,\ldots,x_{i}=x_1',\ldots,x_i') = 3/4$.
 \end{lem} 
 
 \begin{proof}
-  We will show that, for any $i\in\{3,\ldots,m-1\}$,
-  \[
-    \Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_{i})
-    = \Pr(\mathcal{E}_{i+1}\mid \overline{\mathcal{E}}_{i})
-    = 3/4   \enspace .
+  Notice that the values of $x_1,\ldots,x_i$ determine the actions of the algorithm up to the completion of iteration $i$.  In particular, they determine whether $\mathcal{E}_i$ occurs or not.  Therefore, it is sufficient to show that
+  \[  \Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_i) = 3/4 = \Pr(\mathcal{E}_{i+1}\mid \overline{\mathcal{E}}_i) \enspace .
   \]
-  This is sufficient to establish the independence of $\mathcal{E}_1, \ldots, \mathcal{E}_m$
-  for any $i\subseteq\{4,\ldots,m\}$ by a standard inductive argument.
   
   First we show that $\Pr(\mathcal{E}_{i+1}\mid \mathcal{E}_{i})=3/4$ for any $i\in\{3,\ldots,m-1\}$.  The event $\mathcal{E}_i$ implies that, at end of iteration $i$, $s_1,\ldots,s_n$ ends with $abc$ for distinct symbols $a$, $b$, and $c$.  There are four cases to consider, each of which occurs with probability $1/4$:
   \begin{compactenum}
@@ -167,33 +181,106 @@ We can now establish a concentration result for $n_2$.
 \end{lem}
 
 \begin{proof}
-  For each $i\in\{1,\ldots,m\}$, let $\mathcal{A}_i$ denote the event $t_{i}=2$.  Let $B_i$ denote the event that $x_i$ is equal to the second last character in the string $s_1,\ldots,s_n$ after iteration $i-1$ of the algorithm has completed.
+  For each $i\in\{1,\ldots,m\}$, let $\mathcal{A}_i$ denote the event $t_{i}=2$.  Let $\mathcal{B}_i$ denote the event that $x_i$ is equal to the second last character in the string $s_1,\ldots,s_n$ after iteration $i-1$ of the algorithm has completed.  Note that $\Pr(\mathcal{B}_i)=1/4$ and that, for any fixed $x_1,\ldots,x_i$,
+  \begin{equation} 
+    \Pr(\mathcal{B}_{i+1}\mid x_1,\ldots,x_i) = 1/4 \enspace . \eqlabel{bi} 
+  \end{equation}
   
-  Observe that, for each $i\in\{4,\ldots,m\}$, $\mathcal{A}_i=\overline{\mathcal{E}}_i\cap B_i$ (so that the algorithm tries to append $x_i=b$ to a string that ends in $aba$.) The choice of $x_{i+1}$ is independent of $x_1,\ldots,x_{i}$ and is therefore independent of $\overline{\mathcal{E}}_i$.  Therefore,
-  \[  \Pr(A_i) = \Pr(\overline{\mathcal{E}}_i)\cdot\Pr\{x_{i+1}=s_{n-2}\} = 1/16 \enspace .
+  Observe that, for each $i\in\{2,\ldots,m\}$, $\mathcal{A}_{i+1}=\overline{\mathcal{E}}_i\cap \mathcal{B}_{i+1}$ (so that the algorithm tries to append $x_{i+1}=b$ to a string that ends in $aba$.) The choice of $x_{i+1}$ is independent of $x_1,\ldots,x_{i}$ and therefore $\mathcal{B}_{i+1}$ is independent of $\overline{\mathcal{E}}_i$.  Therefore,
+  \[  \Pr(\mathcal{A}_i) = \Pr(\overline{\mathcal{E}}_i\cap \mathcal{B}_{i+1}) = \Pr(\overline{\mathcal{E}}_i)\cdot\Pr(\mathcal{B}_{i+1}) = 1/16 \enspace .
   \]
   
-  Unfortunately, the events $\mathcal{A}_4,\ldots,A_m$ are not, in general, independent.  For instance, under our assumptions, $t_5=2$ implies that, after iteration 5, $n=3$ and $s_1,s_2,s_3=abc$, so $t_6\neq 2$.
-  
-  However, the proof of \lemref{ei} shows that, for any fixed $x_1',\ldots,x_i'$,
-  \[
-     \Pr(\mathcal{E}_{i+1}\mid x_1,\ldots,x_i=x_1',\ldots,x_i') = \frac{3}{4} \enspace .
-  \]
-  It is also obvious that $\Pr(B_{i+1})=1/4$, indepedent of $x_1,\ldots,x_i$.  From this we see that
+  Unfortunately, the events $\mathcal{A}_2,\ldots,A_m$ are not, in general, independent.  For instance, $t_2=2$ implies that, after iteration 2, $n=0$ so $s_{n-2},s_{n-1},s_n=abc$, so $\Pr(\mathcal{E}_2\mid \mathcal{A}_2)=0$ and therefore $\Pr(\mathcal{A}_3\mid \mathcal{A}_2)=0$.  Luckily, this dependence is limited to events $\mathcal{A}_i$ and $\mathcal{A}_{i+1}$ and disappears after two iterations.  Indeed, fixing $x_1,\ldots,x_i$, we have
   \begin{align*}
-     \Pr(A_{i+2}\mid A_i) 
-     & = \Pr(\mathcal{E}_{i+1}\cap B_{i+2}\mid A_i) \\
-     & = \Pr(\mathcal{E}_{i+1}\mid A_i)\cdot \Pr(B_{i+2}\mid A_i\cap\mathcal{E}_{i+1}) \\
-     & = \Pr(\mathcal{E}_{i+1})\cdot \Pr(B_{i+2}) \\
+     \Pr(\mathcal{A}_{i+2}\mid x_1,\ldots,x_i) 
+     & = \Pr(\mathcal{E}_{i+1}\cap \mathcal{B}_{i+2}\mid x_1,\ldots,x_i) \\
+     & = \Pr(\mathcal{E}_{i+1}\mid x_1,\ldots,x_i)\cdot \Pr(\mathcal{B}_{i+2}\mid \cap\mathcal{E}_{i+1}\cap x_1,\ldots,x_i) \\
+     & = \Pr(\mathcal{E}_{i+1})\cdot \Pr(\mathcal{B}_{i+2}\mid A_i\cap\mathcal{E}_{i+1}) & \text{(by \lemref{ei})}\\
+     & = \Pr(\mathcal{E}_{i+1})\cdot \Pr(\mathcal{B}_{i+2})
+       &\text{(by \eqref{bi})} \\
      & = 1/16 \enspace ,
-  \end{align*}
-  since $A_i$ depends only on $x_1,\ldots,x_i$ and $\mathcal{E}_{i+1}$ depends only on $x_{1},\ldots,x_{i+1}$.
-  
-  Again, using a standard inductive argument, this is enough to establish that $\mathcal{A}_{2i},\ldots,\mathcal{A}_{2\floor{m/2}}$ are independent.
-  $\mathcal{A}_{2i+1},\ldots,\mathcal{A}_{2\floor{(m-1)/2}}$ are independent.  Thus, $n_2$ is the sum of two binomial random variables each having mean at most $m/2$.  Applying Chernoff's Bound on the tails of these two variables and using the union bound then establishes the lemma.
+  \end{align*}  
+  This establishes that $\mathcal{A}_{2},\mathcal{A}_{4}\ldots,\mathcal{A}_{2\floor{m/2}}$ are independent. Similarly,   $\mathcal{A}_{1},A_{3},\ldots,\mathcal{A}_{2\floor{(m-1)/2}+1}$ are independent.  Thus, $n_2$ is the sum of two binomial random variables each having mean at most $\tfrac{m}{2}\cdot\tfrac{1}{16}$.  Applying Chernoff's Bound on the tails of these two random variables and using the union bound then establishes the lemma.
 \end{proof}
 
+\section{Encoding $(S,T)$}
+\seclabel{encoding}
 
+To encode the deletion sequence $t_1,\ldots,t_m$ we use a variable length code for for non-negative integers where the length (in bits) of the codeword for $i$ is $\ell_i$.  The codeword lengths are parameterized by two parameters $\alpha\in[0,c]$ and $\beta>0$ and are defined as follows:
+\[
+   \ell_t = \begin{cases} 
+      \log(c-\alpha) & \text{for $t=0$} \\
+      2\log c+\beta-\ell_0 & \text{for $t=2$} \\
+      t(\log c - \ell_0) + \ell_0 & \text{for $t\ge 3$.}
+    \end{cases}
+\]
+The value of $\ell_1$ is the unique solution to the equation
+\[
+    \sum_{t=0}^\infty 2^{-\ell_t} = 1
+\]
+Letting $w_t=2^{\ell_t}$ for all $t\in\N$, the left hand side of this equation is more recognizable as
+\[
+   \frac{1}{w_0} + \frac{1}{w_1} + \frac{w_0}{c^2 2^\beta} + \frac{1}{w_0}\cdot\sum_{t=3}^\infty\left(\frac{w_0}{c}\right)^t \enspace .
+\]
+It is straightforward, but tedious, to solve $\ell_1=\log(w_1)$, where
+\begin{equation}
+  w_{1} = -\frac{2^{\beta + 4} \alpha^{2} - 2^{\beta + 6} \alpha}{2^{\beta} {\left(2^{-\beta + 3} - 28\right)} \alpha^{2} + {\left(2^{\beta} - 1\right)} \alpha^{3} - 2^{\beta} {\left(2^{-\beta + 4} - 96\right)} \alpha - 2^{\beta + 6}} \enspace .  \eqlabel{w1}
+\end{equation}
+(Indeed, this solution was computed by Sage, and the code for this can be found in the accompanying Sage worksheet.)
+
+Using this code, the length of the encoding (in bits) of $(S,T)$ when the algorithm outputs a string $S$ of length $n$ is
+\begin{align*}
+  C & = n\log c+\sum_{t=0}^\infty n_t \ell_t \\
+    & = n\log c+n_0\ell_0 + n_1\ell_1 + n_2\ell_2 + \sum_{t=3}^\infty n_t\ell_t \\
+    & = n\log c+n_0\ell_0 + n_1\ell_1 + n_2\ell_2 + \sum_{t=3}^\infty n_t(t(\log c-\ell_0)+\ell_0) \\
+    & = n\log c+n_0\ell_0 + n_1\ell_1 + n_2\ell_2 + (m-n-n_1-2n_2)(\log c-\ell_0)+\sum_{t=3}^\infty n_t\ell_0 \\
+    & = n\ell_0+n_0\ell_0 + n_1(\ell_1-\log c +\ell_0) + n_2(\ell_2-2\log c+2\ell_0) + m(\log c-\ell_0)+\sum_{t=3}^\infty n_t\ell_0 \\
+    & = n\ell_0+n_0\ell_0 + n_1(\ell_1-\log c +\ell_0) + n_2(\ell_2-2\log c+2\ell_0) + m(\log c-\ell_0)+(m-n_0-n_1-n_2)\ell_0 \\
+    & = n\ell_0 + n_1(\ell_1-\log c) + n_2(\ell_2-2\log c+\ell_0) + m\log c \\
+    & = n\ell_0 + n_1(\ell_1-\log c) + n_2\beta + m\log c \\
+    & \le n\ell_0 + m\left(\frac{(1-\delta)(\ell_1-\log c)}{4} + \frac{(1+\delta)\beta}{16}\right) + m\log c \enspace . \\
+    & \le n\ell_0 - mf^* + m\log c \enspace . \\
+\end{align*}
+Here, $f^*=0.0203516450481741$ is obtained by setting $c=4$, $\delta=1/1000$, and minimizing the bivariate function
+\[
+   f(\alpha,\beta)=\left(\frac{(1-\delta)\ell_1-\log c}{4} + \frac{(1+\delta)\beta}{16}\right)
+\]
+(Recall that \eqref{w1} expresses $w_1=2^{\ell_1}$ as a function of $\alpha$ and $\beta$.)  Numerical minimization finds a local minimum of 
+\[  -f^*=-0.0203516450481741 \]
+at $\alpha=1.94880255756$, and $\beta=0.76142917805$.  
+
+Finally, we observe that, for any fixed $k\ge 0$, $C \le m\log c - k$
+when
+\[
+  n \le \frac{mf^* -k}{\ell_0}  \enspace .
+\]
+
+Summarizing:  If $n_1\ge (1+\delta)m/4$, $n_2\le (1+\delta)m/16$ and $n \le \frac{mf^* -k}{\ell_0}$ then the encoding algorithm described above encodes $x_1,\ldots,x_m$ using $m\log c - k$ bits.  But the probability that this happens is at most $2^{-k}$.  Therefore, the probability that the algorithm fails to produces an output of length at least $\frac{mf^* -k}{\ell_0}$ is at most \begin{align*} 
+    \Pr(\mathcal{F}) 
+    & \le 2^{-k} + \Pr\left\{n_1<(1-\delta)m/4\right\} + \Pr\left\{n_2>(1+\delta)m/16\right\} \\
+    & \le 2^{-k} + \exp(-m/(8\cdot 10^6)) + \exp(-m/(96\cdot 10^6)) \enspace .
+\end{align*}
+
+This completes the proof of our main theorem:
+
+\begin{thm}\thmlabel{main}
+  For any alphabet $\Sigma$ of size $4$, and any $k>0$, the probability that $\textsc{Nonrepetitive}(m,\Sigma)$ fails to produce an output string of length 
+  \[ n\ge \frac{0.0203516450481741m-k}{1.03646636822645} \] 
+  is at most 
+  \[ 2^{-k} + \exp(-m/(8\cdot 10^6)) + \exp(-m/(96\cdot 10^6)) \enspace . \]
+\end{thm}
+
+\section{Discussion}
+
+Grytczuk \etal\ originally proved \thmref{main} for the list-colouring variant of this problem in which one is given $n$ sets $S_1,\ldots,S_n$, each of size $c$ and the goal is to construct a nonrepetitive string $s_1,\ldots,s_n$ where $s_i\in S_i$ for each $i\in\{1,\ldots,n\}$.  Their proof shows that this is always possible when $c=4$. The main open question in this area is to determine whether this is always possible when $c=3$.
+
+Can the techniques we use here also show that the list-colouring variant of the algorithm finds the string $s_1,\ldots,s_n$ in a linear number of iterations?  The main technical difficulty comes from the fact that our proof relies on a (probabilistic) lower bound on $n_1$ and a (probablistic) upper bound on $n_2$.  In essence, the proof uses shorter than typical codeword for $\ell_1$ and a longer than typical codeword for $\ell_2$. The bounds on $n_1$ and $n_2$ ensure that the savings due to the many occurences of the short codeword length $\ell_1$ outweigh the losses caused by the few occurrences of the long codeword length $\ell_2$. 
+
+For the list-colouring variant it is still possible to show that
+\[
+   \Pr(\mathcal{E}_{i+1}\mid x_1,\ldots,x_i) \le 1/16 \enspace .
+\]
+which is sufficient to prove the upper bound on $n_2$.  However, there is no way to lower-bound $n_1$ since adjacent lists can be disjoint.
 
 
 
