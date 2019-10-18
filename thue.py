@@ -34,24 +34,40 @@ def blocked_repetitive_suffix(s, r):
 
 if __name__ == "__main__":
     r = int(sys.argv[1])
-    blocks = list(gen_nonrep("abc", r))
-    print("r = {}, len(blocks) = {}".format(r, len(blocks)))
+    blocks = list(gen_nonrep("abcd", r))
+    #print("r = {}, len(blocks) = {}".format(r, len(blocks)))
 
     digraph = [list() for x in blocks]
+    dograph = [list() for x in blocks]
     for i in range(len(blocks)):
         for j in range(len(blocks)):
             (t, e) = blocked_repetitive_suffix(blocks[i] + blocks[j], r)
-            if t > 0:
+            if t == 0:
+                dograph[i].append(j)
+            else:
                 digraph[i].append(j)
-    print(digraph)
+
+    #print(digraph)
     for i in range(len(blocks)):
-        print(i, len(digraph[i]))
-    avgdeg = sum([len(digraph[i]) for i in range(len(blocks))])
+        pass # print(i, "".join(blocks[i]), len(digraph[i]))
+    avgdeg = sum([len(digraph[i]) for i in range(len(blocks))]) / len(blocks)
+    #print("Average degree = {} ({})".format(avgdeg, avgdeg/len(blocks)))
+
+    lb = 0
     s = []
+    it = 0
     while 1 < 2:
-        sp = s + random.choice(blocks)
+        nb = random.choice(dograph[lb])
+        sp = s + blocks[nb]
         (t, e) = blocked_repetitive_suffix(sp, r)
         if  t > 0:
-            print("".join(sp), sp[e-2*t:e])
-            sys.exit(-1)
+            mid = e-t   # first element of second half
+            #print("".join(sp), "".join(sp[e-2*t:e]))
+            while mid < len(sp):
+                sp = sp[:-r]
+            #print("".join(sp))
+            #sys.exit(-1)
         s = sp
+        lb = nb
+        it += 1
+        print(it, len(s))
